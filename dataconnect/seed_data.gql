@@ -1,0 +1,88 @@
+mutation SeedData @transaction @auth(level: USER, insecureReason: "Seed data mutation, only run by trusted users or during development.") {
+  user_insertMany(data: [
+    {
+      id: "b2c1d3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+      displayName: "João Silva",
+      email: "joao.silva@example.com",
+      phone: "5511987654321",
+      photoUrl: "https://example.com/joao.jpg",
+      role: "citizen"
+    },
+    {
+      id: "c3d4e5f6-b7c8-d9e0-f1a2-b3c4d5e6f7a8",
+      displayName: "Maria Oliveira",
+      email: "maria.oliveira@example.com",
+      phone: "5521912345678",
+      photoUrl: "https://example.com/maria.jpg",
+      role: "agent"
+    }
+  ])
+  category_insertMany(data: [
+    {
+      id: "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      createdAt: "2023-01-15T10:00:00Z",
+      description: "Categories related to urban infrastructure",
+      name: "Infraestrutura Urbana"
+    },
+    {
+      id: "d5e6f7a8-b9c0-1d2e-3f4a-5b6c7d8e9f0a",
+      createdAt: "2023-02-01T11:30:00Z",
+      description: "Categories related to social services",
+      name: "Serviços Sociais"
+    }
+  ])
+  requirement_insertMany(data: [
+    {
+      id: "e9f0a1b2-c3d4-5e6f-7a8b-9c0d1e2f3a4b",
+      categoryId: "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      citizenId: "b2c1d3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+      attachments: ["https://example.com/photo1.jpg", "https://example.com/doc1.pdf"],
+      createdAt: "2023-03-01T09:00:00Z",
+      description: "Necesito la reparación de un bache en la calle principal.",
+      lastUpdatedAt: "2023-03-01T09:00:00Z",
+      priority: "Alta",
+      status: "Pendente",
+      title: "Reparo de bache na rua principal"
+    },
+    {
+      id: "f1a2b3c4-d5e6-7a8b-9c0d-1e2f3a4b5c7d",
+      categoryId: "d5e6f7a8-b9c0-1d2e-3f4a-5b6c7d8e9f0a",
+      citizenId: "b2c1d3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+      createdAt: "2023-03-05T14:15:00Z",
+      description: "Solicito auxílio para minha família em situação de vulnerabilidade.",
+      lastUpdatedAt: "2023-03-05T14:15:00Z",
+      priority: "Média",
+      status: "Em Análise",
+      title: "Auxílio social para família"
+    }
+  ])
+  assignment_insertMany(data: [
+    {
+      id: "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c8e",
+      assigneeId: "c3d4e5f6-b7c8-d9e0-f1a2-b3c4d5e6f7a8",
+      requirementId: "e9f0a1b2-c3d4-5e6f-7a8b-9c0d1e2f3a4b",
+      assignedAt: "2023-03-02T10:00:00Z",
+      notes: "Prioridade para reparo rápido devido ao grande fluxo de veículos.",
+      status: "Atribuído"
+    }
+  ])
+  update_insertMany(data: [
+    {
+      id: "6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c",
+      actorId: "b2c1d3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f",
+      requirementId: "e9f0a1b2-c3d4-5e6f-7a8b-9c0d1e2f3a4b",
+      createdAt: "2023-03-03T11:00:00Z",
+      description: "Cidadão verificou o status da solicitação.",
+      type: "Status Check"
+    },
+    {
+      id: "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      actorId: "c3d4e5f6-b7c8-d9e0-f1a2-b3c4d5e6f7a8",
+      requirementId: "e9f0a1b2-c3d4-5e6f-7a8b-9c0d1e2f3a4b",
+      createdAt: "2023-03-04T15:30:00Z",
+      description: "Agente iniciou a avaliação do local.",
+      newStatus: "Em Andamento",
+      type: "Status Update"
+    }
+  ])
+}

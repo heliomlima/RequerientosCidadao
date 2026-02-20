@@ -1,0 +1,42 @@
+type User @table {
+  displayName: String!
+  email: String!
+  role: String!
+  photoUrl: String
+  phone: String
+}
+
+type Category @table {
+  name: String!
+  description: String
+  createdAt: Timestamp!
+}
+
+type Requirement @table {
+  title: String!
+  description: String!
+  status: String!
+  createdAt: Timestamp!
+  attachments: [String]
+  priority: String
+  lastUpdatedAt: Timestamp
+  citizen: User
+  category: Category
+}
+
+type Assignment @table {
+  assignedAt: Timestamp!
+  status: String!
+  notes: String
+  requirement: Requirement
+  assignee: User
+}
+
+type Update @table {
+  type: String!
+  description: String!
+  createdAt: Timestamp!
+  newStatus: String
+  requirement: Requirement
+  actor: User
+}

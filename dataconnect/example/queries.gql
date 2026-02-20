@@ -1,0 +1,45 @@
+query AllCategories @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public as it only retrieves category data.") {
+  categories {
+    id
+    name
+    description
+    createdAt
+  }
+}
+
+query UserRequirements($citizenId: UUID!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users as it filters by user ID.") {
+  requirements(where: {citizenId: {eq: $citizenId}}) {
+    id
+    title
+    description
+    status
+    priority
+    createdAt
+    lastUpdatedAt
+    category {
+      name
+    }
+  }
+}
+
+mutation CreateNewRequirement($title: String!, $description: String!, $categoryId: UUID!) @auth(level: USER, insecureReason: "This operation creates a new requirement linked to the current user.") {
+  requirement_insert(data: {
+    title: $title,
+    description: $description,
+    status: "Pending",
+    priority: "Medium",
+    citizenId_expr: "auth.uid",
+    categoryId: $categoryId,
+    createdAt_expr: "request.time"
+  })
+}
+
+mutation UpdateRequirementStatus($id: UUID!, $newStatus: String!) @auth(level: USER, insecureReason: "This operation updates the status of a specific requirement by its ID.") {
+  requirement_update(
+    key: {id: $id},
+    data: {
+      status: $newStatus,
+      lastUpdatedAt_expr: "request.time"
+    }
+  )
+}

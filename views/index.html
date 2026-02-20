@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Requerimentos - Cidadão</title>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="dashboard" id="app">
+        <!-- Header será preenchido via JavaScript -->
+        <header class="header" id="header"></header>
+
+        <!-- Cards de resumo -->
+        <div class="citizen-summary" id="summary"></div>
+
+        <!-- Barra de ações -->
+        <div class="actions-bar">
+            <div class="actions-left">
+                <h2>
+                    <i class="fas fa-list"></i>
+                    Meus Requerimentos
+                </h2>
+            </div>
+            <button class="btn-primary" onclick="criarRequerimento()">
+                <i class="fas fa-plus"></i>
+                Novo Requerimento
+            </button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Buscar por protocolo, descrição..." onkeyup="filtrarRequerimentos()">
+            </div>
+            <select class="filter-select" id="statusFilter" onchange="filtrarRequerimentos()">
+                <option value="todos">Todos os status</option>
+                <option value="aguardando">Aguardando análise</option>
+                <option value="andamento">Em andamento</option>
+                <option value="resolvido">Resolvido</option>
+            </select>
+            <select class="filter-select" id="categoriaFilter" onchange="filtrarRequerimentos()">
+                <option value="todas">Todas as categorias</option>
+                <option value="Iluminação">Iluminação</option>
+                <option value="Buraco na via">Buraco na via</option>
+                <option value="Coleta de lixo">Coleta de lixo</option>
+                <option value="Outros">Outros</option>
+            </select>
+        </div>
+
+        <!-- Lista de requerimentos -->
+        <div class="requirements-list" id="requerimentosList"></div>
+
+        <!-- Rodapé com paginação -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        let requerimentos = [];
+        let user = {};
+        let stats = {};
+
+        // Carregar dados da API
+        async function carregarDados() {
+            try {
+                const response = await fetch('/api/requerimentos');
+                const data = await response.json();
+                
+                if (data.success) {
+                    user = data.user;
+                    stats = data.stats || {};
+                    requerimentos = data.data || [];
+                    
+                    atualizarHeader();
+                    atualizarSummary();
+                    renderizarRequerimentos(requerimentos);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+
+        // Atualizar header
+        function atualizarHeader() {
+            const header = document.getElementById('header');
+            header.innerHTML = `
+                <div class="logo">
+                    <h1>
+                        <i class="fas fa-city"></i>
+                        Meus Requerimentos
+                    </h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-details">
+                        <div class="user-name">${user.nome || 'Carregando...'}</div>
+                        <div class="user-since">Cidadão desde ${user.desde || '2024'}</div>
+                    </div>
+                    <div class="user-avatar">${user.nome ? user.nome.split(' ').map(n => n[0]).join('').substring(0,2) : 'U'}</div>
+                </div>
+            `;
+        }
+
+        // Atualizar cards de resumo
+        function atualizarSummary() {
+            const summary = document.getElementById('summary');
+            summary.innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="summary-info">
+                        <h3>Total de requerimentos</h3>
+                        <p>${stats.total || 0}</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="summary-info">
+                        <h3>Resolvidos</h3>
+                        <p>${stats.resolvidos || 0}</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="summary-info">
+                        <h3>Em andamento</h3>
+                        <p>${stats.andamento || 0}</p>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="summary-info">
+                        <h3>Tempo médio</h3>
+                        <p>${stats.tempoMedio || 0} dias</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Renderizar cards de requerimentos
+        function renderizarRequerimentos(lista) {
+            const container = document.getElementById('requerimentosList');
+            
+            if (lista.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <p>Nenhum requerimento encontrado</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = lista.map(req => `
+                <div class="requirement-card">
+                    <div class="card-content">
+                        <div class="photo-area">
+                            ${req.fotosCount > 0 ? `
+                                <div class="photo-placeholder">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Foto anexada</span>
+                                </div>
+                                <div class="photo-badge">
+                                    <i class="fas fa-check"></i> ${req.fotosCount}
+                                </div>
+                            ` : `
+                                <div class="photo-placeholder">
+                                    <i class="fas fa-image"></i>
+                                    <span>Sem foto</span>
+                                </div>
+                            `}
+                        </div>
+                        <div class="info-area">
+                            <div class="info-header">
+                                <span class="protocol">
+                                    <i class="fas fa-star"></i>
+                                    PROTOCOLO: ${req.protocolo}
+                                </span>
+                                <div class="meta-info">
+                                    <span><i class="fas fa-calendar"></i> ${new Date(req.dataCadastro).toLocaleDateString('pt-BR')}</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> ${req.endereco}</span>
+                                    <span class="category-tag">${req.categoria}</span>
+                                </div>
+                            </div>
+                            
+                            <p class="description">
+                                ${req.descricao}
+                            </p>
+
+                            <div class="status ${req.status}">
+                                ${req.status === 'andamento' ? '<i class="fas fa-spinner"></i> EM ANDAMENTO' : 
+                                  req.status === 'resolvido' ? '<i class="fas fa-check-circle"></i> RESOLVIDO' : 
+                                  '<i class="fas fa-hourglass-half"></i> AGUARDANDO RESPOSTA'}
+                            </div>
+
+                            ${req.respostas && req.respostas.length > 0 ? `
+                                <div class="response-area">
+                                    <div class="response-header">
+                                        <i class="fas fa-reply"></i>
+                                        Resposta (${new Date(req.respostas[0].data).toLocaleDateString('pt-BR')})
+                                    </div>
+                                    <div class="response-text">
+                                        "${req.respostas[0].texto}"
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            <div class="card-actions">
+                                <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')"><i class="fas fa-phone"></i> Ligar</button>
+                                <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')"><i class="fas fa-comment"></i> Chat</button>
+                                <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')"><i class="fas fa-paperclip"></i> Anexos (${req.fotosCount})</button>
+                                <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')"><i class="fas fa-share"></i> Compartilhar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filtrar requerimentos
+        function filtrarRequerimentos() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoriaFilter = document.getElementById('categoriaFilter').value;
+
+            const filtrados = requerimentos.filter(req => {
+                const matchesSearch = req.protocolo.toLowerCase().includes(searchTerm) ||
+                                    req.descricao.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'todos' || req.status === statusFilter;
+                const matchesCategoria = categoriaFilter === 'todas' || req.categoria === categoriaFilter;
+                
+                return matchesSearch && matchesStatus && matchesCategoria;
+            });
+
+            renderizarRequerimentos(filtrados);
+        }
+
+        // Criar novo requerimento
+        function criarRequerimento() {
+            alert('Funcionalidade de criar requerimento será implementada em breve!');
+            // Aqui você pode adicionar um modal ou redirecionar para uma página de criação
+        }
+
+        // Inicializar
+        carregarDados();
+    </script>
+</body>
+</html>
