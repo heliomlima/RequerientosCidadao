@@ -1,12 +1,10 @@
-node_modules/
-package-lock.json
-.env
-public/uploads/
-data/requerimentos.json
-.DS_Store
-# Firebase credentials
-/config/
-/config/*
-/config/**/*
-*.json
-!package.json
+﻿# Arquivos temporários do Windows
+~*.*
+*.tmp
+*.temp
+*.swp
+
+# Arquivos temporários do Office
+~$*.docx
+~$*.xlsx
+~$*.pptx
