@@ -1,0 +1,70 @@
+[
+  {
+    "id": "req1",
+    "protocolo": "2024/00254",
+    "usuarioId": 1,
+    "descricao": "Poste com lâmpada queimada na calçada há 3 semanas, dificultando a passagem de pedestres e trazendo insegurança para a região durante a noite.",
+    "endereco": "Centro - Rua A, 123",
+    "categoria": "Iluminação",
+    "fotos": [
+      {
+        "id": "foto1",
+        "url": "/uploads/poste-1.jpg",
+        "data": "2024-02-14T14:30:00.000Z"
+      }
+    ],
+    "fotosCount": 1,
+    "status": "andamento",
+    "dataCadastro": "2024-02-14T14:30:00.000Z",
+    "dataAtualizacao": "2024-02-14T16:45:00.000Z",
+    "respostas": [
+      {
+        "id": "resp1",
+        "texto": "Solicitação encaminhada à Secretaria de Obras. Prazo estimado: 15 dias úteis para análise e providências.",
+        "data": "2024-02-14T16:45:00.000Z",
+        "status": "andamento"
+      }
+    ]
+  },
+  {
+    "id": "req2",
+    "protocolo": "2024/00123",
+    "usuarioId": 1,
+    "descricao": "Buraco grande no asfalto próximo à faixa de pedestres, causando riscos de acidentes para veículos e pedestres.",
+    "endereco": "Centro - Av. B, 456",
+    "categoria": "Buraco na via",
+    "fotos": [
+      {
+        "id": "foto2",
+        "url": "/uploads/buraco-1.jpg",
+        "data": "2024-02-10T09:15:00.000Z"
+      }
+    ],
+    "fotosCount": 1,
+    "status": "resolvido",
+    "dataCadastro": "2024-02-10T09:15:00.000Z",
+    "dataAtualizacao": "2024-02-12T11:30:00.000Z",
+    "respostas": [
+      {
+        "id": "resp2",
+        "texto": "Serviço de tapa-buraco realizado no local. Problema solucionado.",
+        "data": "2024-02-12T11:30:00.000Z",
+        "status": "resolvido"
+      }
+    ]
+  },
+  {
+    "id": "req3",
+    "protocolo": "2024/00089",
+    "usuarioId": 1,
+    "descricao": "Lixeira transbordando há 5 dias, causando mau odor e atraindo animais para a região. Já houve reclamações de vizinhos.",
+    "endereco": "Centro - Rua C, 789",
+    "categoria": "Coleta de lixo",
+    "fotos": [],
+    "fotosCount": 0,
+    "status": "aguardando",
+    "dataCadastro": "2024-02-05T11:20:00.000Z",
+    "dataAtualizacao": "2024-02-05T11:20:00.000Z",
+    "respostas": []
+  }
+]

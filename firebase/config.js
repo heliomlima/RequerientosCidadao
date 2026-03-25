@@ -1,11 +1,11 @@
-// Import the functions you need from the SDKs you need
+// Imports
 import { initializeApp } from "firebase/app";
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
+// Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyAgfiHAMahonNoNtjxBgEXoxVEjnsB8NRw",
   authDomain: "requerimentoscidadao.firebaseapp.com",

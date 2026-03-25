@@ -30,6 +30,7 @@ try {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     projectId: serviceAccount.project_id,
+    storageBucket: 'requerimentoscidadao.firebasestorage.app',
   });
 
   console.log('✅ Firebase inicializado com projeto:', serviceAccount.project_id);

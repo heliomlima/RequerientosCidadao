@@ -151,85 +151,82 @@
         }
 
         // Renderizar cards de requerimentos
-        function renderizarRequerimentos(lista) {
-            const container = document.getElementById('requerimentosList');
-            
-            if (lista.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-folder-open"></i>
-                        <p>Nenhum requerimento encontrado</p>
+function renderizarRequerimentos(lista) {
+    const container = document.getElementById('requerimentosList');
+    
+    if (lista.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p>Nenhum requerimento encontrado</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = lista.map(req => `
+        <div class="requirement-card">
+            <div class="card-content">
+                <div class="photo-area">
+                    ${req.fotosCount > 0 ? `
+                        <div class="photo-placeholder">
+                            <i class="fas fa-camera"></i>
+                            <span>Foto anexada</span>
+                        </div>
+                    ` : `
+                        <div class="photo-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sem foto</span>
+                        </div>
+                    `}
+                </div>
+                <div class="info-area">
+                    <div class="info-header">
+                        <span class="protocol">
+                            <i class="fas fa-hashtag"></i> PROTOCOLO: ${req.protocolo}
+                        </span>
+                        <div class="meta-info">
+                            <span><i class="fas fa-calendar"></i> ${new Date(req.dataCadastro).toLocaleDateString('pt-BR')}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${req.endereco || 'Não informado'}</span>
+                            <span class="category-tag">${req.categoria}</span>
+                        </div>
                     </div>
-                `;
-                return;
-            }
+                    
+                    <p class="description">${req.descricao}</p>
 
-            container.innerHTML = lista.map(req => `
-                <div class="requirement-card">
-                    <div class="card-content">
-                        <div class="photo-area">
-                            ${req.fotosCount > 0 ? `
-                                <div class="photo-placeholder">
-                                    <i class="fas fa-camera"></i>
-                                    <span>Foto anexada</span>
-                                </div>
-                                <div class="photo-badge">
-                                    <i class="fas fa-check"></i> ${req.fotosCount}
-                                </div>
-                            ` : `
-                                <div class="photo-placeholder">
-                                    <i class="fas fa-image"></i>
-                                    <span>Sem foto</span>
-                                </div>
-                            `}
+                    <div class="status ${req.status}">
+                        <i class="fas fa-info-circle"></i> ${req.status.toUpperCase()}
+                    </div>
+
+                    ${req.resposta ? `
+                        <div class="response-area">
+                            <div class="response-header">
+                                <i class="fas fa-reply"></i> Resposta da Prefeitura
+                            </div>
+                            <div class="response-text">"${req.resposta}"</div>
                         </div>
-                        <div class="info-area">
-                            <div class="info-header">
-                                <span class="protocol">
-                                    <i class="fas fa-star"></i>
-                                    PROTOCOLO: ${req.protocolo}
-                                </span>
-                                <div class="meta-info">
-                                    <span><i class="fas fa-calendar"></i> ${new Date(req.dataCadastro).toLocaleDateString('pt-BR')}</span>
-                                    <span><i class="fas fa-map-marker-alt"></i> ${req.endereco}</span>
-                                    <span class="category-tag">${req.categoria}</span>
-                                </div>
-                            </div>
-                            
-                            <p class="description">
-                                ${req.descricao}
-                            </p>
+                    ` : ''}
 
-                            <div class="status ${req.status}">
-                                ${req.status === 'andamento' ? '<i class="fas fa-spinner"></i> EM ANDAMENTO' : 
-                                  req.status === 'resolvido' ? '<i class="fas fa-check-circle"></i> RESOLVIDO' : 
-                                  '<i class="fas fa-hourglass-half"></i> AGUARDANDO RESPOSTA'}
-                            </div>
-
-                            ${req.respostas && req.respostas.length > 0 ? `
-                                <div class="response-area">
-                                    <div class="response-header">
-                                        <i class="fas fa-reply"></i>
-                                        Resposta (${new Date(req.respostas[0].data).toLocaleDateString('pt-BR')})
-                                    </div>
-                                    <div class="response-text">
-                                        "${req.respostas[0].texto}"
-                                    </div>
-                                </div>
-                            ` : ''}
-
-                            <div class="card-actions">
-                                <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')"><i class="fas fa-phone"></i> Ligar</button>
-                                <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')"><i class="fas fa-comment"></i> Chat</button>
-                                <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')"><i class="fas fa-paperclip"></i> Anexos (${req.fotosCount})</button>
-                                <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')"><i class="fas fa-share"></i> Compartilhar</button>
-                            </div>
-                        </div>
+                    <!-- BLOCO DE BOTÕES RESTAURADO -->
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')">
+                            <i class="fas fa-phone"></i> Ligar
+                        </button>
+                        <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')">
+                            <i class="fas fa-comment"></i> Chat
+                        </button>
+                        <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')">
+                            <i class="fas fa-paperclip"></i> Anexos (${req.fotosCount || 0})
+                        </button>
+                        <button class="action-btn" onclick="alert('Funcionalidade em desenvolvimento')">
+                            <i class="fas fa-share"></i> Compartilhar
+                        </button>
                     </div>
                 </div>
-            `).join('');
-        }
-
+            </div>
+        </div>
+    `).join('');
+}
         // Filtrar requerimentos
         function filtrarRequerimentos() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();

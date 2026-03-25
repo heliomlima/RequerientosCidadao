@@ -2,11 +2,11 @@ import {
   collection, 
   addDoc, 
   getDocs, 
+  getDoc, 
   query, 
   where,
   orderBy,
   updateDoc,
-  deleteDoc,
   doc 
 } from "firebase/firestore";
 import { db } from "./config.js";
@@ -34,22 +34,35 @@ export const listarRequerimentos = async (usuarioId) => {
   }
 };
 
-// Criar requerimento
+// Criar requerimento com a estrutura completa do TCC
 export const criarRequerimento = async (dados) => {
   try {
     const protocolo = `${new Date().getFullYear()}/${Math.floor(Math.random() * 10000)}`;
+    const dataAgora = new Date().toISOString();
     
     const novoRequerimento = {
-      ...dados,
+      usuarioId: dados.usuarioId,
+      categoria: dados.categoria || "Geral",
+      descricao: dados.descricao,
+      endereco: dados.endereco || "Não informado",
       protocolo,
+      dataCadastro: dataAgora,
+      dataAtualizacao: dataAgora,
       status: "aguardando",
-      dataCadastro: new Date().toISOString(),
-      respostas: [],
-      fotosCount: 0
+      fotos: [],
+      fotosCount: 0,
+      documentos: [],
+      idUGResponsavel: dados.idUGResponsavel || null,
+      idServidorResponsavel: null,
+      dataConclusaoPrevista: null,
+      dataConclusao: null,
+      resposta: "",
+      documentoResposta: null,
+      avaliacao: 0,
+      comentarioAvaliacao: ""
     };
     
     const docRef = await addDoc(collection(db, REQUERIMENTOS_COLLECTION), novoRequerimento);
-    
     return { success: true, id: docRef.id, data: { ...novoRequerimento, id: docRef.id } };
   } catch (error) {
     return { success: false, error: error.message };
