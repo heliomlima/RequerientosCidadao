@@ -455,18 +455,31 @@ const DashboardCidadao = () => {
 
                 <div className="md:col-span-2">
                   <p className="font-bold">Documento da Resposta:</p>
-                  {selectedReq.documentoResposta?.url ? (
-                    <a
-                      href={selectedReq.documentoResposta.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sky-600 hover:underline"
-                    >
-                      Abrir documento
-                    </a>
-                  ) : (
-                    <p>-</p>
-                  )}
+                  {(() => {
+                    const dr = selectedReq.documentoResposta;
+                    const lista = Array.isArray(dr)
+                      ? dr.filter((d) => d?.url)
+                      : dr?.url
+                        ? [{ nome: dr.nome, url: dr.url }]
+                        : [];
+                    if (lista.length === 0) return <p>-</p>;
+                    return (
+                      <ul className="list-none space-y-1 mt-1">
+                        {lista.map((d, i) => (
+                          <li key={i}>
+                            <a
+                              href={d.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-sky-600 hover:underline"
+                            >
+                              {d.nome || `Documento ${i + 1}`}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    );
+                  })()}
                 </div>
 
                 <div className="md:col-span-2">

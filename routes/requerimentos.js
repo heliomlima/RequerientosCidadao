@@ -1,10 +1,11 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
 const { admin } = require('../firebase/admin');
 const upload = require('../middleware/upload');
 const {
   listarMeusRequerimentos,
   getDashboardStats,
+  listarUnidadesGestoraCidadao,
   criarRequerimento,
   adicionarComentario,
   avaliarRequerimento,
@@ -37,6 +38,11 @@ async function authMiddleware(req, res, next) {
 
 router.get('/meus', authMiddleware, listarMeusRequerimentos);
 router.get('/stats', authMiddleware, getDashboardStats);
+router.get(
+  '/unidades-gestora',
+  authMiddleware,
+  listarUnidadesGestoraCidadao
+);
 
 router.post(
   '/',

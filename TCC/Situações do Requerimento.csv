@@ -1,0 +1,12 @@
+﻿SITUAÇÃO;RESPONSÁVEL POR COLOCAR NA SITUAÇÃO;RESPONSÁVEL QUANDO ESTÁ NA SITUAÇÃO;QUANDO OCORRE;SITUAÇÃO ANTERIOR
+Registrado;Cidadão;Gestor;Ao cadastrar um novo requerimento e não indicar UG para atendimento;-
+Direcionado;Cidadão;Gestor de UG;Ao cadastrar um novo requerimento e indicar UG para atendimento;-
+Distribuído;Gestor;Gestor de UG;Ao enviar para uma UG um requerimento com situação Registrado;Registrado
+Delegado;Gestor de UG ou Analista;Analista;"1) Quando o Gestor de UG envia para um Analista para que seja o responsável pelo atendimento, quando o requerimento está na situação de Distribuído ou Direcionado
+2) Quando o Gestor de UG devolve o requerimento que tinha sido concluído pelo Analista
+3) Quando o Analista envia para outro analista para que seja responsável pelo atendimento";Direcionado ou Distribuído ou Em análise ou Concluído
+Em análise;Analista;Analista;Ao visualizar detalhes do requerimento;Delegado
+Em execução;Analista;Analista;Ao informar prazo para conclusão;Em análise
+Concluído;Analista;Gestor de UG;Ao concluir um requerimento que está na situação Em análise ou Em execução;Em análise ou Em execução
+Respondido;Gestor de UG;Cidadão;Quando o Gestor de UG responde um requerimento que está na situação Concluído;Concluído
+Avaliado;Cidadão;Cidadão;Ao avaliar um requerimento que está com situação Respondido;Respondido

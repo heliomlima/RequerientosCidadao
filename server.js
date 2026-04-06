@@ -21,6 +21,7 @@ app.use(express.static('public'));
 app.use('/api/requerimentos', requerimentoRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/usuarios-servidor', usuariosServidorRoutes);
+app.use('/api/requerimentos-servidor', require('./routes/requerimentosServidor'));
 
 // Rota principal - Servir o HTML
 //app.get('/', (req, res) => {

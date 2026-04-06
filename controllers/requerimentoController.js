@@ -80,6 +80,30 @@ exports.getDashboardStats = async (req, res) => {
   }
 };
 
+/** Lista unidades gestoras (nome do campo `nome` / `Nome`) para o cidadão direcionar o requerimento. */
+exports.listarUnidadesGestoraCidadao = async (req, res) => {
+  try {
+    const snapshot = await db.collection('unidadeGestora').get();
+    const lista = [];
+    snapshot.forEach((doc) => {
+      const data = doc.data() || {};
+      const bruto = data.nome ?? data.Nome ?? data.unidadeGestoraNome ?? '';
+      const nome =
+        typeof bruto === 'string' ? bruto.trim() : String(bruto || '').trim();
+      if (!nome) return;
+      lista.push({ id: doc.id, nome });
+    });
+    lista.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    return res.status(200).json(lista);
+  } catch (error) {
+    console.error('Erro ao listar unidades gestora (cidadão):', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Erro interno ao listar unidades gestoras.',
+    });
+  }
+};
+
 exports.criarRequerimento = async (req, res) => {
 
   console.log('=== criarRequerimento acionado ===');
@@ -94,6 +118,7 @@ exports.criarRequerimento = async (req, res) => {
       categoria,
       descricao,
       endereco = '',
+      bairro = '',
       idUGResponsavel = '',
     } = req.body;
 
@@ -114,6 +139,14 @@ exports.criarRequerimento = async (req, res) => {
       });
     }
 
+    const bairroTratado = String(bairro || '').trim();
+    if (!bairroTratado) {
+      return res.status(400).json({
+        success: false,
+        message: 'Bairro é obrigatório.',
+      });
+    }
+
     const possuiEndereco = !!endereco.trim();
     const possuiFotos = fotos.length > 0;
     const possuiDocumentos = documentos.length > 0;
@@ -123,6 +156,17 @@ exports.criarRequerimento = async (req, res) => {
         success: false,
         message: 'Informe pelo menos um entre endereço, fotos ou documentos.',
       });
+    }
+
+    const ugIdTratado = String(idUGResponsavel || '').trim();
+    if (ugIdTratado) {
+      const ugSnap = await db.collection('unidadeGestora').doc(ugIdTratado).get();
+      if (!ugSnap.exists) {
+        return res.status(400).json({
+          success: false,
+          message: 'Unidade gestora informada não foi encontrada.',
+        });
+      }
     }
 
     const agora = admin.firestore.Timestamp.now();
@@ -155,9 +199,7 @@ exports.criarRequerimento = async (req, res) => {
 
     const protocolo = `${anoAtual}/${String(numeroSequencial).padStart(6, '0')}`;
 
-    const status = idUGResponsavel && idUGResponsavel.trim()
-      ? 'Direcionado'
-      : 'Registrado';
+    const status = ugIdTratado ? 'Direcionado' : 'Registrado';
 
     const fotosUrls = [];
     const documentosUrls = [];
@@ -220,9 +262,10 @@ exports.criarRequerimento = async (req, res) => {
       categoria: categoria.trim(),
       descricao: descricao.trim(),
       endereco: endereco.trim(),
+      bairro: bairroTratado,
       fotos: fotosUrls,
       documentos: documentosUrls,
-      idUGResponsavel: idUGResponsavel.trim(),
+      idUGResponsavel: ugIdTratado,
       resposta: '',
       comentarioAvaliacao: '',
       dataConclusaoPrevista: null,
@@ -443,6 +486,7 @@ exports.avaliarRequerimento = async (req, res) => {
 module.exports = {
   listarMeusRequerimentos: exports.listarMeusRequerimentos,
   getDashboardStats: exports.getDashboardStats,
+  listarUnidadesGestoraCidadao: exports.listarUnidadesGestoraCidadao,
   criarRequerimento: exports.criarRequerimento,
   adicionarComentario: exports.adicionarComentario,
   avaliarRequerimento: exports.avaliarRequerimento,

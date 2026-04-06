@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { admin, db } = require('../firebase/admin');
+const { resolverNomeSetorUnidadeGestora } = require('../utils/servidorUsuarioHelpers');
 
 function somenteNumeros(valor) {
   return String(valor || '').replace(/\D/g, '');
@@ -202,7 +203,7 @@ exports.loginServidor = async (req, res) => {
       });
     }
 
-    const setor = dadosServidor.unidadeGestoraNome || dadosServidor.setor || '';
+    const setor = await resolverNomeSetorUnidadeGestora(db, dadosServidor);
 
     return res.status(200).json({
       success: true,
@@ -210,6 +211,7 @@ exports.loginServidor = async (req, res) => {
       token: idToken,
       user: {
         uid: dadosServidor.uid || localId,
+        servidorId: doc.id,
         nome: dadosServidor.nome || '',
         setor,
         fotoUrl: obterFotoUrlServidor(dadosServidor),
