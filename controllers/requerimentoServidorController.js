@@ -1945,6 +1945,14 @@ exports.getIndicadoresDashboardAnalista = async (req, res) => {
   }
 };
 
+/** Perfis cadastráveis em usuarioPerfil ao inserir servidor (id numérico → descrição exibida no sistema). */
+const PERFIS_SERVIDOR_CADASTRO = {
+  1: 'Administrador',
+  2: 'Gestor',
+  3: 'Gestor de UG',
+  4: 'Analista',
+};
+
 // Administrador (perfil 1): cadastrar pré-usuário em usuarioServidor (sem Firebase Auth até primeiro acesso)
 exports.inserirServidorUsuarioAdmin = async (req, res) => {
   try {
@@ -1969,6 +1977,8 @@ exports.inserirServidorUsuarioAdmin = async (req, res) => {
       cpf = '',
       ativo = 'SIM',
       idUnidadeGestora = '',
+      // Lista de códigos de perfil (1–4) vindos do front (checkboxes)
+      perfis = [],
     } = req.body || {};
 
     const emailN = String(email).trim().toLowerCase();
@@ -2007,6 +2017,20 @@ exports.inserirServidorUsuarioAdmin = async (req, res) => {
       });
     }
 
+    // Normaliza e valida os perfis selecionados (apenas 1–4, sem duplicar)
+    const perfisBrutos = Array.isArray(perfis) ? perfis : [];
+    const perfisNumericos = perfisBrutos
+      .map((x) => normalizarIdPerfil(x))
+      .filter((n) => n != null && PERFIS_SERVIDOR_CADASTRO[n]);
+    const perfisUnicos = [...new Set(perfisNumericos)];
+
+    if (perfisUnicos.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Selecione ao menos um perfil para o usuário.',
+      });
+    }
+
     const ugDoc = await db.collection('unidadeGestora').doc(ugId).get();
     if (!ugDoc.exists) {
       return res.status(400).json({
@@ -2030,7 +2054,13 @@ exports.inserirServidorUsuarioAdmin = async (req, res) => {
 
     const agora = admin.firestore.Timestamp.now();
 
-    await db.collection('usuarioServidor').add({
+    // ID fixo do documento usuarioServidor antes do commit (para vincular usuarioPerfil)
+    const servidorRef = db.collection('usuarioServidor').doc();
+    const servidorId = servidorRef.id;
+
+    const batch = db.batch();
+
+    batch.set(servidorRef, {
       email: emailN,
       CPF: cpfNorm,
       nome: nomeN,
@@ -2039,9 +2069,26 @@ exports.inserirServidorUsuarioAdmin = async (req, res) => {
       dataAtualizacao: agora,
     });
 
+    // Um documento em usuarioPerfil por perfil marcado (UsuarioID + usuarioID: compatível com buscas existentes)
+    perfisUnicos.forEach((idPerfil) => {
+      const perfilDescricao = PERFIS_SERVIDOR_CADASTRO[idPerfil];
+      const perfilRef = db.collection('usuarioPerfil').doc();
+      batch.set(perfilRef, {
+        UsuarioID: servidorId,
+        usuarioID: servidorId,
+        idPerfil,
+        perfilDescricao,
+        dataAtualizacao: agora,
+      });
+    });
+
+    await batch.commit();
+
     return res.status(201).json({
       success: true,
       message: 'Servidor inserido com sucesso!',
+      servidorId,
+      perfisCadastrados: perfisUnicos.length,
     });
   } catch (error) {
     console.error('Erro ao inserir servidor (admin):', error);

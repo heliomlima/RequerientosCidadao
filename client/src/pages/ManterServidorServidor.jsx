@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { ArrowLeft, UserPlus } from 'lucide-react';
 
+/**
+ * Perfis exibidos no formulário; o valor `id` é o enviado à API e gravado em usuarioPerfil.idPerfil.
+ */
+const PERFIS_FORMULARIO = [
+  { id: 1, label: 'Administrador' },
+  { id: 2, label: 'Gestor' },
+  { id: 3, label: 'Gestor de UG' },
+  { id: 4, label: 'Analista' },
+];
+
 function formatarCpfDigitando(valor) {
   const d = String(valor || '').replace(/\D/g, '').slice(0, 11);
   if (d.length <= 3) return d;
@@ -23,6 +33,8 @@ function ManterServidorServidor() {
   const [unidades, setUnidades] = useState([]);
   const [loadingUg, setLoadingUg] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  // Conjunto dos códigos de perfil marcados (1–4); alimenta o array `perfis` no POST
+  const [perfisMarcados, setPerfisMarcados] = useState(() => new Set());
 
   useEffect(() => {
     let c = false;
@@ -63,6 +75,12 @@ function ManterServidorServidor() {
       return;
     }
 
+    const perfisLista = Array.from(perfisMarcados);
+    if (perfisLista.length === 0) {
+      alert('Selecione ao menos um perfil para o usuário.');
+      return;
+    }
+
     try {
       setSalvando(true);
       const { data } = await api.post(
@@ -73,6 +91,7 @@ function ManterServidorServidor() {
           cpf: cpfLimpo,
           ativo,
           idUnidadeGestora,
+          perfis: perfisLista,
         }
       );
       if (data?.success) {
@@ -82,6 +101,7 @@ function ManterServidorServidor() {
         setNome('');
         setAtivo('SIM');
         setIdUnidadeGestora('');
+        setPerfisMarcados(new Set());
       }
     } catch (err) {
       const msg =
@@ -204,6 +224,39 @@ function ManterServidorServidor() {
             </label>
           </div>
         </div>
+
+        {/* Perfis: cada opção vira um documento em usuarioPerfil no backend */}
+        <fieldset className="border border-slate-200 rounded-2xl p-4 space-y-3">
+          <legend className="px-1 text-sm font-semibold text-slate-700">
+            Selecione o(s) perfil(s) do usuário
+          </legend>
+          <p className="text-xs text-slate-500 -mt-1 mb-2">
+            É obrigatório marcar ao menos uma opção.
+          </p>
+          <div className="flex flex-col gap-3">
+            {PERFIS_FORMULARIO.map(({ id, label }) => (
+              <label
+                key={id}
+                className="inline-flex items-center gap-3 cursor-pointer text-slate-800"
+              >
+                <input
+                  type="checkbox"
+                  checked={perfisMarcados.has(id)}
+                  onChange={() => {
+                    setPerfisMarcados((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(id)) next.delete(id);
+                      else next.add(id);
+                      return next;
+                    });
+                  }}
+                  className="rounded border-slate-300 text-sky-600 focus:ring-sky-500 w-4 h-4"
+                />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         <div>
           <label
